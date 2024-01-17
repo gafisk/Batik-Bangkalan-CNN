@@ -112,7 +112,6 @@ def format_waktu(seconds):
 def fold(a, b, c, v, d, e, f, g, h ):
     model = models(a, b, c, v)
     start_time = time.time()
-    model = load_model("model.h5")
     kf = KFold(n_splits=d, shuffle=True)
     encoder = LabelEncoder()
 
