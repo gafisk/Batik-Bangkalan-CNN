@@ -10,3 +10,4 @@ streamlit_option_menu
 folium
 streamlit_folium
 streamlit_antd_components
+keras
