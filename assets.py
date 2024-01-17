@@ -12,6 +12,9 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score
 from tensorflow.keras.models import load_model
+from keras.models import Sequential
+from keras.layers import Embedding, Conv1D, MaxPooling1D, AveragePooling1D, Dense, Flatten, Dropout
+from keras.optimizers import Adam
 
 import nltk
 nltk.download('punkt')
@@ -79,29 +82,51 @@ def tf_idf(data):
     vectorizer = TfidfVectorizer()
     tfidf_df = pd.DataFrame(vectorizer.fit_transform(data['Text']).toarray(), columns=vectorizer.get_feature_names_out())
     tfidf_vectors = vectorizer.fit_transform(data['Text'])
-    return tfidf_df, tfidf_vectors
+    return tfidf_df, tfidf_vectors, vectorizer.vocabulary_
+
+def models(a, b, c, v):
+    word_index = v
+    model = Sequential()
+    model.add(Embedding(len(word_index) + 1, 17, input_length=a.shape[1]))
+    model.add(Conv1D(128, 8, activation=b))
+    model.add(MaxPooling1D(8))
+    model.add(Dropout(0.3))
+    model.add(Conv1D(64, 4, activation=c))
+    model.add(AveragePooling1D(4))
+    model.add(Dropout(0.2))
+    model.add(Flatten())
+
+    model.add(Dense(64, activation=b))
+    model.add(Dense(32, activation=b))
+    model.add(Dense(16, activation=b))
+    model.add(Dense(3, activation=c))
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=Adam(learning_rate=0.001),
+                  metrics=['accuracy'])
+    return model
 
 def format_waktu(seconds):
     menit, detik = divmod(seconds, 60)
     return f"{int(menit)} menit {int(detik)} detik"
 
-def fold(a, b, n):
+def fold(a, b, c, v, d, e, f, g, h ):
+    model = models(a, b, c, v)
     start_time = time.time()
     model = load_model("model.h5")
-    kf = KFold(n_splits=n, shuffle=True)
+    kf = KFold(n_splits=d, shuffle=True)
     encoder = LabelEncoder()
 
     hasil_list = []
     
-    for fold, (train_index, test_index) in enumerate(kf.split(a)):
-        X_train, X_test = a[train_index].toarray(), a[test_index].toarray()
-        y_train, y_test = b['Label'][train_index], b['Label'][test_index]
+    for fold, (train_index, test_index) in enumerate(kf.split(e)):
+        X_train, X_test = e[train_index].toarray(), e[test_index].toarray()
+        y_train, y_test = f['Label'][train_index], f['Label'][test_index]
         encoder.fit(y_train)
         encoded_Y_train = encoder.transform(y_train)
         encoded_Y_test = encoder.transform(y_test)
         y_train = to_categorical(encoded_Y_train, num_classes=3)
         y_test = to_categorical(encoded_Y_test, num_classes=3)
-        # history = model.fit(X_train, y_train, epochs=100, verbose=1)
+        history = model.fit(X_train, y_train, epochs=g, batch_size=h, verbose=1)
         y_pred = model.predict(X_test)
         y_pred = np.argmax(y_pred, axis=1)
         loss = model.evaluate(X_test, y_test, verbose=0)[0]
