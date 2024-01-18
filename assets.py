@@ -11,7 +11,6 @@ from keras.utils import to_categorical
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from sklearn.metrics import accuracy_score
-from tensorflow.keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Embedding, Conv1D, MaxPooling1D, AveragePooling1D, Dense, Flatten, Dropout
 from keras.optimizers import Adam
@@ -24,6 +23,11 @@ def dataset():
     data = pd.read_excel("Dataset.xlsx")
     jumlah = data['Label'].value_counts()
     return data, jumlah
+
+def hitung_label(data):
+    data['Label'] = data['Label'].str.lower()
+    jumlah = data['Label'].value_counts()
+    return jumlah
 
 factory = StopWordRemoverFactory()
 stopword = factory.create_stop_word_remover()
