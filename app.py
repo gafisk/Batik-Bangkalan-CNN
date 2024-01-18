@@ -124,10 +124,10 @@ if selected == "Training New Data":
         col1, col2, col3 = st.columns(3)
         with col1:
             st.write("Pilih Nilai Epoch")
-            epoch = st.slider('', min_value=50, max_value=500, value=100, step=50)
+            epoch = st.slider('', min_value=100, max_value=300, value=100, step=200)
         with col2:
             st.write("Pilih Nilai Batch")
-            batch = st.slider('', min_value=32, max_value=320, value=64, step=32)
+            batch = st.slider('', min_value=12, max_value=24, value=12, step=12)
         with col3:
             st.write("Fungsi Aktivasi")
             scol1, scol2 = st.columns(2)
@@ -136,7 +136,7 @@ if selected == "Training New Data":
             with scol2:
                 layer2 = st.selectbox('Layer 2', ('relu', 'sigmoid', 'softmax'))
         sac.divider(label='K-Fold', icon='ubuntu', align='center', color='gray')
-        k = st.slider('Pilih Nilai K', min_value=2, max_value=20, value=5, step=1)
+        k = st.slider('Pilih Nilai K', min_value=3, max_value=9, value=5, step=2)
         if st.button("Training"):
             sac.divider(label="Proses Training", icon='ubuntu', align='center', color='gray')
             hasil = fold(st.session_state.df_upload_tf[0], layer1, layer2, st.session_state.df_upload_tf[0], k, st.session_state.df_upload_tf[1], st.session_state.df_upload_datas, epoch, batch )
@@ -221,10 +221,10 @@ if selected == "Training":
         col1, col2, col3 = st.columns(3)
         with col1:
             st.write("Pilih Nilai Epoch")
-            epoch = st.slider('', min_value=50, max_value=500, value=100, step=50)
+            epoch = st.slider('', min_value=100, max_value=300, value=100, step=200)
         with col2:
             st.write("Pilih Nilai Batch")
-            batch = st.slider('', min_value=32, max_value=320, value=64, step=32)
+            batch = st.slider('', min_value=12, max_value=24, value=12, step=12)
         with col3:
             st.write("Fungsi Aktivasi")
             scol1, scol2 = st.columns(2)
@@ -233,7 +233,7 @@ if selected == "Training":
             with scol2:
                 layer2 = st.selectbox('Layer 2', ('relu', 'sigmoid', 'softmax'))
         sac.divider(label='K-Fold', icon='ubuntu', align='center', color='gray')
-        k = st.slider('Pilih Nilai K', min_value=2, max_value=20, value=5, step=1)
+        k = st.slider('Pilih Nilai K', min_value=3, max_value=9, value=5, step=2)
         if st.button("Training"):
             sac.divider(label="Proses Training", icon='ubuntu', align='center', color='gray')
             hasil = fold(st.session_state.tfidf_df, layer1, layer2, st.session_state.vocab, k, st.session_state.data_tf, st.session_state.datas, epoch, batch)

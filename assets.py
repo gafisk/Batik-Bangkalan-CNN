@@ -88,22 +88,22 @@ def tf_idf(data):
     tfidf_vectors = vectorizer.fit_transform(data['Text'])
     return tfidf_df, tfidf_vectors, vectorizer.vocabulary_
 
-def models(a, b, c, v):
-    word_index = v
+def models(tf_idf, ac_1, ac_2, vocab):
+    word_index = vocab
     model = Sequential()
-    model.add(Embedding(len(word_index) + 1, 17, input_length=a.shape[1]))
-    model.add(Conv1D(128, 8, activation=b))
+    model.add(Embedding(len(word_index) + 1, 17, input_length=tf_idf.shape[1]))
+    model.add(Conv1D(128, 8, activation=ac_1))
     model.add(MaxPooling1D(8))
     model.add(Dropout(0.3))
-    model.add(Conv1D(64, 4, activation=c))
+    model.add(Conv1D(64, 4, activation=ac_2))
     model.add(AveragePooling1D(4))
     model.add(Dropout(0.2))
     model.add(Flatten())
 
-    model.add(Dense(64, activation=b))
-    model.add(Dense(32, activation=b))
-    model.add(Dense(16, activation=b))
-    model.add(Dense(3, activation=c))
+    model.add(Dense(64, activation="relu"))
+    model.add(Dense(32, activation="relu"))
+    model.add(Dense(16, activation="relu"))
+    model.add(Dense(3, activation="softmax"))
     model.compile(loss='categorical_crossentropy',
                   optimizer=Adam(learning_rate=0.001),
                   metrics=['accuracy'])
@@ -113,23 +113,22 @@ def format_waktu(seconds):
     menit, detik = divmod(seconds, 60)
     return f"{int(menit)} menit {int(detik)} detik"
 
-def fold(a, b, c, v, d, e, f, g, h ):
-    model = models(a, b, c, v)
+def fold(tf_idf, ac_1, ac_2, vocab, k, tf_idf_vector, data, epoch, batch):
+    model = models(tf_idf, ac_1, ac_2, vocab)
     start_time = time.time()
-    kf = KFold(n_splits=d, shuffle=True)
+    kf = KFold(n_splits=k, shuffle=True)
     encoder = LabelEncoder()
-
     hasil_list = []
     
-    for fold, (train_index, test_index) in enumerate(kf.split(e)):
-        X_train, X_test = e[train_index].toarray(), e[test_index].toarray()
-        y_train, y_test = f['Label'][train_index], f['Label'][test_index]
+    for fold, (train_index, test_index) in enumerate(kf.split(tf_idf_vector)):
+        X_train, X_test = tf_idf_vector[train_index].toarray(), tf_idf_vector[test_index].toarray()
+        y_train, y_test = data['Label'][train_index], data['Label'][test_index]
         encoder.fit(y_train)
         encoded_Y_train = encoder.transform(y_train)
         encoded_Y_test = encoder.transform(y_test)
         y_train = to_categorical(encoded_Y_train, num_classes=3)
         y_test = to_categorical(encoded_Y_test, num_classes=3)
-        history = model.fit(X_train, y_train, epochs=g, batch_size=h, verbose=1)
+        history = model.fit(X_train, y_train, epochs=epoch, batch_size=batch, verbose=1)
         y_pred = model.predict(X_test)
         y_pred = np.argmax(y_pred, axis=1)
         loss = model.evaluate(X_test, y_test, verbose=0)[0]
